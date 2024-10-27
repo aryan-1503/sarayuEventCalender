@@ -10,10 +10,12 @@ import Profile from "./components/Profile.jsx";
 import Home from "./pages/Home.jsx";
 import UserCalendar from "./pages/UserCalendar.jsx";
 import {api} from "./api/base.js";
+import {CircularProgress} from "@mui/material";
 
 function App() {
   const [user, setUser] = useState(null);
   const [tempUser, setTempUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Fetching the current user
@@ -23,10 +25,20 @@ function App() {
         setUser(res.data.user);
       } catch (error) {
         console.log("Error fetching user data:", error);
+      }finally {
+        setLoading(false)
       }
     };
     fetchUserData();
   }, []);
+
+  if (loading){
+    return (
+        <div style={{ height: "100vh" , width: "100vw" , display: "flex" , alignItems: "center" , justifyContent: "center"}}>
+          <CircularProgress />
+        </div>
+    )
+  }
   return (
     <AuthContext.Provider value={{ user, setUser, tempUser, setTempUser }}>
       <Router >
