@@ -34,7 +34,7 @@ const Home = () => {
 
     const handleDelete = async (eventId) => {
         try {
-            await api.delete(`/event/delete/${eventId}`);
+            await api.delete(`/event/delete-event/${eventId}`);
             setEvents((prevEvents) => prevEvents.filter((event) => event.eventid !== eventId));
         } catch (error) {
             console.error("Failed to delete event:", error);
@@ -42,7 +42,6 @@ const Home = () => {
     };
 
     const handleRemind = (eventId) => {
-        // Placeholder for reminder functionality
         console.log(`Reminder set for event ID: ${eventId}`);
     };
 
@@ -60,7 +59,7 @@ const Home = () => {
             }
         };
         fetchAllEvents();
-    }, []);
+    }, [events]);
 
     useEffect(() => {
         const filterEvents = events.filter(event =>
