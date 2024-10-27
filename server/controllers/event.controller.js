@@ -11,10 +11,18 @@ import cron from 'node-cron';
 import nodemailer from 'nodemailer';
 
 export const health = (req,res) => {
+    /*
+        Function to check if event router is up and running
+    */
     return res.status(200).json({ message : "Event route is working" })
 }
 
 export const create = async (req,res) => {
+    /*
+        Function to create a new event
+        Request Body : eventname, description, eventdate
+        Returns : newEvent
+    */
     const { eventname, description, eventdate } = req.body;
     try{
         const user = req.user;
@@ -27,6 +35,10 @@ export const create = async (req,res) => {
 }
 
 export const getAllEvents = async (req,res) => {
+    /*
+        Function to fetch all user events
+        Returns : All user events
+    */
     try{
         const user = req.user;
         const events = await findEventsByUser(user.userid);
@@ -42,6 +54,11 @@ export const getAllEvents = async (req,res) => {
 }
 
 export const getSingleEvent = async (req,res) => {
+    /*
+        Function to fetch a single event
+        Request Params : eventid
+        Returns : single event
+    */
     const { eventid } = req.params;
     try{
         const event = await findEventById(eventid);
@@ -57,8 +74,13 @@ export const getSingleEvent = async (req,res) => {
 }
 
 export const updateSingleEvent = async (req, res) => {
+    /*
+        Function to update a event
+        Request Body : fields required to be updated
+        Returns : updated event
+    */
     const { eventid } = req.params;
-    const eventData = req.body; // Get the whole event data
+    const eventData = req.body;
 
     try {
         const event = await updateEventById(eventid, eventData);
@@ -70,6 +92,11 @@ export const updateSingleEvent = async (req, res) => {
 }
 
 export const deleteSingleEvent = async (req, res) => {
+    /*
+        Function to delete a event
+        Request Params : eventid
+        Returns : newEvent
+    */
     const { eventid } = req.params;
     try {
         await deleteEventById(eventid);
@@ -81,6 +108,11 @@ export const deleteSingleEvent = async (req, res) => {
 }
 
 export const sendReminderForEvent = async (req, res) => {
+    /*
+        Function to send reminder for an event
+        Request Params : eventid
+        Returns : sends email to the user
+    */
     const { eventid } = req.params;
     const user = req.user;
 
