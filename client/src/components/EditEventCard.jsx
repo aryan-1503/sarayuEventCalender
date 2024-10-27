@@ -1,41 +1,43 @@
-import { useContext, useState, useEffect } from 'react';
-import { Box, Button, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Modal, Select, TextField, Typography } from '@mui/material';
-import { toast, ToastContainer } from "react-toastify";
+import { useContext, useState } from 'react';
+import { Box, Button, Modal, TextField, Typography } from '@mui/material';
+import { ToastContainer } from "react-toastify";
 import EventContext from '../context/EventContext';
 import { api } from "../api/base";
 
-const EditEventCard = ({ id, title, endDate, status, priority }) => {
+const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+    borderRadius: 2,
+};
+
+const EditEventCard = ({ eventid, eventname, description, eventdate }) => {
     const { setEditOpen } = useContext(EventContext);
 
     const [formData, setFormData] = useState({
-        title: title || "",
-        priority: priority || "medium",
-        dueDate: "",
-        status: status || 'pending',
+        eventname: eventname || "",
+        description: description || "",
+        eventdate: eventdate || "",
     });
 
-    useEffect(() => {
-        if (endDate) {
-            setFormData((prevData) => ({
-                ...prevData,
-                dueDate: endDate.split('T')[0],
-            }));
-        }
-    }, [endDate]);
-
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value } = e.target;
         setFormData((prevData) => ({
             ...prevData,
-            [name]: type === 'checkbox' ? (checked ? 'completed' : 'pending') : value,
+            [name]: value,
         }));
     };
 
     const handleEdit = async (e) => {
         e.preventDefault();
         try {
-            const res = await api.put(`/event/${id}`, formData);
-            toast.success(res.data.message, { position: "top-right" });
+            const res = await api.patch(`event/update-event/${eventid}`, formData);
+            alert(res.data.message);
             window.location.reload();
         } catch (error) {
             console.error(error);
@@ -51,47 +53,31 @@ const EditEventCard = ({ id, title, endDate, status, priority }) => {
                 <form onSubmit={handleEdit}>
                     <TextField
                         fullWidth
-                        label="Event Title"
-                        name="title"
-                        value={formData.title}
+                        label="Event Name"
+                        name="eventname"
+                        value={formData.eventname}
                         onChange={handleChange}
                         margin="normal"
                         required
                     />
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel>Priority</InputLabel>
-                        <Select
-                            label="Priority"
-                            name="priority"
-                            value={formData.priority}
-                            onChange={handleChange}
-                            required
-                        >
-                            <MenuItem value="low">Low</MenuItem>
-                            <MenuItem value="medium">Medium</MenuItem>
-                            <MenuItem value="high">High</MenuItem>
-                        </Select>
-                    </FormControl>
+                    <TextField
+                        fullWidth
+                        label="Description"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        margin="normal"
+                    />
                     <TextField
                         fullWidth
                         type="date"
-                        label="Due Date"
-                        name="dueDate"
-                        value={formData.dueDate}
+                        label="Event Date"
+                        name="eventdate"
+                        value={formData.eventdate}
                         onChange={handleChange}
                         InputLabelProps={{ shrink: true }}
                         margin="normal"
                         required
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={formData.status === 'completed'}
-                                onChange={handleChange}
-                                name="status"
-                            />
-                        }
-                        label="Event Completed"
                     />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                         <Button variant="contained" color="primary" type="submit" fullWidth sx={{ mr: 1 }}>

@@ -6,7 +6,7 @@ import {
     getAllEvents,
     getSingleEvent,
     updateSingleEvent,
-    deleteSingleEvent
+    deleteSingleEvent, sendReminderForEvent
 } from "../controllers/event.controller.js";
 
 
@@ -19,6 +19,7 @@ eventRouter
     .get("/get-single-event/:eventid", getSingleEvent)
     .patch("/update-event/:eventid", updateSingleEvent)
     .delete("/delete-event/:eventid", deleteSingleEvent)
+    .post("/remind/:eventid", getUser,sendReminderForEvent)
 
 
 export { eventRouter }

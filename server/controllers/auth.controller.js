@@ -64,12 +64,13 @@ export const verify = async (req, res) => {
     try {
         // Fetch the user by email
         const user = await findUserByEmail(email);
-        console.log("USER FROM VERIFY : ",user);
+        console.log("USER FROM VERIFY : ",user.verificationcode);
+        console.log(typeof user.verificationcode)
 
         if (!user) {
             return res.status(404).json({message: "User not found"});
         }
-
+        console.log("VERI : ", verificationCode)
         // Check if the verification code matches
         if (user.verificationcode === verificationCode) {
             // Update user as verified
@@ -83,6 +84,7 @@ export const verify = async (req, res) => {
             });
             return res.status(200).json({ message: "Registration done successfully", user: updatedUser });
         } else {
+            console.log("Wrong code")
             // Increment attempts if verification code does not match
             await incrementUserAttempts(user.userid);
 
@@ -103,6 +105,7 @@ export const login = async (req,res) => {
     const { email, password } = req.body;
     try{
         const user = await findUserByEmail(email)
+        console.log(user);
         if(!user){
             // console.log("user not found")
             return res.status(404).json({ message: "User not found! Register first" });
@@ -131,7 +134,7 @@ export const login = async (req,res) => {
             sameSite: "none",
         })
 
-        return res.status(200).json({message: "Login Successfully",token})
+        return res.status(200).json({message: "Login Successfully",token ,user})
     }catch (error) {
         console.log(error)
         return res.status(500).json({ message : error})

@@ -14,11 +14,13 @@ import MenuItem from '@mui/material/MenuItem';
 import CalendarViewMonthIcon from '@mui/icons-material/CalendarViewMonth';
 import AuthContext from "../context/AuthContext.jsx";
 import {useNavigate} from "react-router-dom";
+import {api} from "../api/base.js";
 
 
 const pages = ['Events', 'Calendar', 'Blog'];
 
 function ResponsiveAppBar() {
+    const { setUser } = useContext(AuthContext);
     const navigate = useNavigate();
     const { user} = useContext(AuthContext);
     const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -39,6 +41,20 @@ function ResponsiveAppBar() {
     const handleCloseUserMenu = () => {
         setAnchorElUser(null);
     };
+
+
+    const handleLogout = async () => {
+        try{
+            const res = await api.post("/auth/logout",{})
+            if (res.status === 200) {
+                alert(res.data.message)
+                setUser(null);
+            }
+            window.location.reload();
+        }catch (e) {
+            console.log(e.message);
+        }
+    }
 
     return (
         <AppBar position="static">
@@ -135,7 +151,7 @@ function ResponsiveAppBar() {
                                         <Typography sx={{ textAlign: 'center' }}>Calendar</Typography>
                                     </MenuItem>
                                     <MenuItem onClick={() => { handleCloseUserMenu();}}>
-                                        <Typography sx={{ textAlign: 'center' }}>Logout</Typography>
+                                        <Typography sx={{ textAlign: 'center' }} onClick={handleLogout}>Logout</Typography>
                                     </MenuItem>
                                 </>
 

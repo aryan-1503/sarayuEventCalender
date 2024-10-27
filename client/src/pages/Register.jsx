@@ -1,16 +1,17 @@
 import React, {useContext, useState} from 'react';
-import {Box, TextField, Button, Typography, Link} from '@mui/material';
+import {Box, TextField, Button, Typography, Link, LinearProgress, CircularProgress} from '@mui/material';
 import {api} from "../api/base.js";
 import AuthContext from "../context/AuthContext.jsx";
-import {toast, ToastContainer} from "react-toastify";
+import {useNavigate} from "react-router-dom";
 
 const Register = () => {
-    // State to store form values
     const [formData, setFormData] = useState({
         username: '',
         email: '',
         password: '',
     });
+
+    const navigate = useNavigate();
 
     const { setTempUser } = useContext(AuthContext);
 
@@ -30,9 +31,8 @@ const Register = () => {
             setLoading(true);
             const res = await api.post("auth/register",formData);
             setTempUser(res.data.user)
-            toast.success(res.data.message, {
-                position: "top-right"
-            })
+            alert(res.data.message);
+            navigate("/verify");
         }
         catch (error) {
             console.log("ERROR in register : ", error)
@@ -101,9 +101,9 @@ const Register = () => {
                     required
                 />
                 <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                    Register
+                    {loading ? <CircularProgress sx={{ color: "white" }} size="30px" /> : "Register"}
                 </Button>
-                <ToastContainer  />
+
                 <Typography
                     sx={{
                         marginTop: "1rem"
@@ -112,7 +112,6 @@ const Register = () => {
                     Already have an account? <Link href="/login">Login</Link>
                 </Typography>
             </Box>
-
         </>
 
     );

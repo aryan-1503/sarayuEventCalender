@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Typography, TextField, Button, CircularProgress, Container, Modal } from '@mui/material';
+import { Box, Typography, TextField, Button, CircularProgress, Container, Modal, Grid } from '@mui/material';
 import AddEventCard from "../components/AddEventCard";
 import EditEventCard from "../components/EditEventCard";
+import EventCard from "../components/EventCard"; // Import the EventCard component
 import EventContext from "../context/EventContext";
 import { api } from "../api/base";
 
@@ -18,11 +19,30 @@ const Home = () => {
     const handleClose = () => setIsOpen(false);
     const handleEditClose = () => setEditOpen(false);
 
+    const handleEditOpen = (event) => {
+        setSelectedEvent(event);
+        setEditOpen(true);
+    };
+
+    const handleDelete = async (eventId) => {
+        try {
+            await api.delete(`/event/delete/${eventId}`);
+            setEvents((prevEvents) => prevEvents.filter((event) => event.eventid !== eventId));
+        } catch (error) {
+            console.error("Failed to delete event:", error);
+        }
+    };
+
+    const handleRemind = (eventId) => {
+        // Placeholder for reminder functionality
+        console.log(`Reminder set for event ID: ${eventId}`);
+    };
+
     useEffect(() => {
         const fetchAllEvents = async () => {
             setLoading(true);
             try {
-                const res = await api.get('/event/all');
+                const res = await api.get('/event/get-all-user-events');
                 setEvents(res.data.events);
                 setFilteredEvents(res.data.events);
             } catch (error) {
@@ -36,7 +56,7 @@ const Home = () => {
 
     useEffect(() => {
         const filterEvents = events.filter(event =>
-            event.title.toLowerCase().includes(searchQuery.toLowerCase())
+            event.eventname.toLowerCase().includes(searchQuery.toLowerCase())
         );
         setFilteredEvents(searchQuery ? filterEvents : events);
     }, [searchQuery, events]);
@@ -64,38 +84,58 @@ const Home = () => {
                             <CircularProgress />
                         </Box>
                     ) : (
-                        <Box sx={{ mt: 2 }}>
-                            {/* Map over filtered events and display them here */}
+                        <Grid container spacing={2} sx={{ mt: 2 }}>
                             {filteredEvents.length > 0 ? (
                                 filteredEvents.map(event => (
-                                    <Typography key={event.id} variant="body1" sx={{ my: 1 }}>
-                                        {event.title}
-                                    </Typography>
+                                    <Grid item xs={12} sm={6} md={4} key={event.eventid}>
+                                        <EventCard
+                                            event={event}
+                                            onEdit={() => handleEditOpen(event)}
+                                            onDelete={() => handleDelete(event.eventid)}
+                                            onRemind={() => handleRemind(event.eventid)}
+                                        />
+                                    </Grid>
                                 ))
                             ) : (
                                 <Typography variant="body1">No events found</Typography>
                             )}
-                        </Box>
+                        </Grid>
                     )}
 
-                    <Button
-                        onClick={handleOpen}
-                        variant="contained"
-                        color="primary"
-                        sx={{ mt: 3 }}
-                    >
-                        Add New Event
-                    </Button>
+                    {/* Fixed Position Buttons */}
+                    <Box sx={{ position: 'fixed', bottom: 24, right: 24, display: 'flex', gap: 2 }}>
+                        <Button
+                            onClick={handleOpen}
+                            variant="contained"
+                            color="primary"
+                        >
+                            Add New Event
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                        >
+                            View Calendar
+                        </Button>
+                    </Box>
 
+                    {/* Add Event Modal */}
                     <Modal open={isOpen} onClose={handleClose}>
                         <Box sx={{ ...modalStyle }}>
                             <AddEventCard onClose={handleClose} />
                         </Box>
                     </Modal>
 
+                    {/* Edit Event Modal */}
                     <Modal open={editOpen} onClose={handleEditClose}>
                         <Box sx={{ ...modalStyle }}>
-                            <EditEventCard event={selectedEvent} onClose={handleEditClose} />
+                            <EditEventCard
+                                eventid={selectedEvent.eventid}
+                                eventname={selectedEvent.eventname}
+                                description={selectedEvent.description}
+                                eventdate={selectedEvent.eventdate}
+                                onClose={handleEditClose}
+                            />
                         </Box>
                     </Modal>
                 </Box>

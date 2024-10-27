@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Box, Button, TextField, Typography, Select, MenuItem, FormControl, InputLabel, Modal } from '@mui/material';
+import { Box, Button, TextField, Typography, Modal, FormControl, FormControlLabel, Checkbox } from '@mui/material';
 import { toast, ToastContainer } from "react-toastify";
 import EventContext from "../context/EventContext";
 import { api } from "../api/base";
@@ -7,16 +7,17 @@ import { api } from "../api/base";
 const AddEventCard = () => {
     const { setIsOpen } = useContext(EventContext);
     const [formData, setFormData] = useState({
-        title: "",
-        priority: "medium",
-        dueDate: "",
+        eventname: "",
+        description: "",
+        eventdate: "",
+        shouldremind: false, // Default value for reminder
     });
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
         setFormData({
             ...formData,
-            [name]: value
+            [name]: type === "checkbox" ? checked : value
         });
     };
 
@@ -24,7 +25,7 @@ const AddEventCard = () => {
         e.preventDefault();
         try {
             const res = await api.post("/event/create", formData);
-            toast.success(res.data.message, { position: "top-right" });
+            alert(res.data.message);
             window.location.reload();
         } catch (error) {
             console.error(error);
@@ -41,36 +42,43 @@ const AddEventCard = () => {
                     <TextField
                         fullWidth
                         label="Event Title"
-                        name="title"
-                        value={formData.title}
+                        name="eventname"
+                        value={formData.eventname}
                         onChange={handleChange}
                         margin="normal"
                         required
                     />
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel>Priority</InputLabel>
-                        <Select
-                            label="Priority"
-                            name="priority"
-                            value={formData.priority}
-                            onChange={handleChange}
-                            required
-                        >
-                            <MenuItem value="low">Low</MenuItem>
-                            <MenuItem value="medium">Medium</MenuItem>
-                            <MenuItem value="high">High</MenuItem>
-                        </Select>
-                    </FormControl>
+                    <TextField
+                        fullWidth
+                        label="Description"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        margin="normal"
+                        multiline
+                        rows={4}
+                        required
+                    />
                     <TextField
                         fullWidth
                         type="date"
-                        label="Due Date"
-                        name="dueDate"
-                        value={formData.dueDate}
+                        label="Event Date"
+                        name="eventdate"
+                        value={formData.eventdate}
                         onChange={handleChange}
                         InputLabelProps={{ shrink: true }}
                         margin="normal"
                         required
+                    />
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                name="shouldremind"
+                                checked={formData.shouldremind}
+                                onChange={handleChange}
+                            />
+                        }
+                        label="Remind Me"
                     />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                         <Button variant="contained" color="primary" type="submit" fullWidth sx={{ mr: 1 }}>

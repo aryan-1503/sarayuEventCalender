@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, {useContext, useState} from 'react';
 import {Box, TextField, Button, Typography, Link} from '@mui/material';
 import {api} from "../api/base.js";
+import AuthContext from "../context/AuthContext.jsx";
 
 const Login = () => {
+    const { setUser } = useContext(AuthContext);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -22,7 +24,8 @@ const Login = () => {
         // Add logic to handle form submission (e.g., API call)
         try{
             const res = await api.post("auth/login",formData);
-            console.log(res.data);
+            alert(res.data.message);
+            setUser(res.data.user);
 
         }catch (error) {
             console.log("ERROR in login : ", error)
