@@ -3,7 +3,6 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import "dotenv/config";
 import { authRouter } from "./routes/auth.route.js";
-// import createDatabaseAndTables from "./utils/db.js";
 import { eventRouter } from "./routes/event.route.js";
 import {createTables} from "./utils/db.js";
 

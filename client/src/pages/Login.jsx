@@ -23,14 +23,12 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log('Logging in user:', formData);
-        // Add logic to handle form submission (e.g., API call)
         try{
             setLoading(true)
             const res = await api.post("auth/login",formData);
             alert(res.data.message);
-            navigate("/")
             window.location.reload();
-
+            navigate("/")
         }catch (error) {
             console.log("ERROR in login : ", error)
         }finally {
