@@ -59,7 +59,7 @@ const Home = () => {
             }
         };
         fetchAllEvents();
-    }, [events]);
+    }, []);
 
     useEffect(() => {
         const filterEvents = events.filter(event =>
