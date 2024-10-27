@@ -51,7 +51,7 @@ export const register = async (req,res) => {
 
         await transporter.sendMail(mailOptions);
 
-        res.status(200).json({ message: "Verify your email", userId: newUser.userid });
+        res.status(200).json({ message: "Verify your email", user: newUser });
     }catch (error) {
         console.log("Error in register : ",error);
         return res.status(500).json({ success: false, message : "Something went wrong", error })
