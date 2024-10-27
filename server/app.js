@@ -14,7 +14,7 @@ const app = express();
 
 app.use(
     cors({
-        origin: "https://snap-share-xi.vercel.app",
+        origin: "https://event-calender-pi.vercel.app",
         credentials: true,
     })
 );
