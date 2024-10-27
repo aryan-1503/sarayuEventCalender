@@ -1,4 +1,11 @@
-import {createEvent, deleteEventById, findEventById, findEventsByUser, updateEventById} from "../models/event.model.js";
+import {
+    createEvent,
+    deleteEventById,
+    findEventById,
+    findEventsByUser,
+    updateEventById,
+    updateShouldRemind
+} from "../models/event.model.js";
 
 import cron from 'node-cron';
 import nodemailer from 'nodemailer';
@@ -83,6 +90,10 @@ export const sendReminderForEvent = async (req, res) => {
             return res.status(404).json({ success: false, message: "Event not found" });
         }
 
+        const updatedEvent = await updateShouldRemind(eventid);
+
+
+
         // Calculate reminder time (6 AM on the event date)
         const eventDate = new Date(event.eventdate);
         const reminderTime = new Date(eventDate);
@@ -104,7 +115,7 @@ export const sendReminderForEvent = async (req, res) => {
             console.log(`Reminder sent for event: ${event.eventname}`);
         }, delay);
 
-        return res.status(200).json({ success: true, message: "Reminder scheduled successfully", event });
+        return res.status(200).json({ success: true, message: "Reminder scheduled successfully", updatedEvent});
     } catch (error) {
         console.log("ERROR IN sendReminderForEvent: ", error);
         return res.status(500).json({ success: false, message: "Something went wrong in sendReminderForEvent", error });

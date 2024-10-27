@@ -1,10 +1,12 @@
 import React, {useContext, useState} from 'react';
-import {Box, TextField, Button, Typography, Link} from '@mui/material';
+import {Box, TextField, Button, Typography, Link, CircularProgress} from '@mui/material';
 import {api} from "../api/base.js";
 import AuthContext from "../context/AuthContext.jsx";
+import {useNavigate} from "react-router-dom";
 
 const Login = () => {
-    const { setUser } = useContext(AuthContext);
+    const navigate = useNavigate()
+    const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -23,12 +25,16 @@ const Login = () => {
         console.log('Logging in user:', formData);
         // Add logic to handle form submission (e.g., API call)
         try{
+            setLoading(true)
             const res = await api.post("auth/login",formData);
             alert(res.data.message);
-            setUser(res.data.user);
+            navigate("/")
+            window.location.reload();
 
         }catch (error) {
             console.log("ERROR in login : ", error)
+        }finally {
+            setLoading(false)
         }
     };
 
@@ -79,7 +85,7 @@ const Login = () => {
                 required
             />
             <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                Login
+                {loading ? <CircularProgress sx={{ color: "white" }} size="30px" /> : "Login"}
             </Button>
             <Typography
                 sx={{

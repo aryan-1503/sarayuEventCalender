@@ -5,8 +5,14 @@ import EditEventCard from "../components/EditEventCard";
 import EventCard from "../components/EventCard"; // Import the EventCard component
 import EventContext from "../context/EventContext";
 import { api } from "../api/base";
+import {navigate} from "react-big-calendar/lib/utils/constants.js";
+import {useNavigate} from "react-router-dom";
+import AuthContext from "../context/AuthContext.jsx";
+import LandingComponent from "../components/LandingComponent.jsx";
 
 const Home = () => {
+
+    const { user } = useContext(AuthContext);
     const [isOpen, setIsOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
     const [events, setEvents] = useState([]);
@@ -14,6 +20,8 @@ const Home = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedEvent, setSelectedEvent] = useState({});
     const [loading, setLoading] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleOpen = () => setIsOpen(true);
     const handleClose = () => setIsOpen(false);
@@ -62,91 +70,99 @@ const Home = () => {
     }, [searchQuery, events]);
 
     return (
-        <Container sx={{ display: 'flex', justifyContent: 'center', minHeight: '100vh', py: 4 }}>
-            <EventContext.Provider value={{ isOpen, setIsOpen, editOpen, setEditOpen, selectedEvent, setSelectedEvent }}>
-                <Box sx={{ width: '100%', textAlign: 'center' }}>
-                    <Typography variant="h5" gutterBottom>
-                        Manage Your Events
-                    </Typography>
+        <>
+            { !user ? (
+                <LandingComponent />
+            ) : (
+                <Container sx={{ display: 'flex', justifyContent: 'center', minHeight: '100vh', py: 4 }}>
+                    <EventContext.Provider value={{ isOpen, setIsOpen, editOpen, setEditOpen, selectedEvent, setSelectedEvent }}>
+                        <Box sx={{ width: '100%', textAlign: 'center' }}>
+                            <Typography variant="h5" gutterBottom>
+                                Manage Your Events
+                            </Typography>
 
-                    <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
-                        <TextField
-                            label="Search events by title"
-                            variant="outlined"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            sx={{ width: 300 }}
-                        />
-                    </Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
+                                <TextField
+                                    label="Search events by title"
+                                    variant="outlined"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    sx={{ width: 300 }}
+                                />
+                            </Box>
 
-                    {loading ? (
-                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                            <CircularProgress />
-                        </Box>
-                    ) : (
-                        <Grid container spacing={2} sx={{ mt: 2 }}>
-                            {filteredEvents.length > 0 ? (
-                                filteredEvents.map(event => (
-                                    <Grid item xs={12} sm={6} md={4} key={event.eventid}>
-                                        <EventCard
-                                            event={event}
-                                            onEdit={() => handleEditOpen(event)}
-                                            onDelete={() => handleDelete(event.eventid)}
-                                            onRemind={() => handleRemind(event.eventid)}
-                                        />
-                                    </Grid>
-                                ))
+                            {loading ? (
+                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                                    <CircularProgress />
+                                </Box>
                             ) : (
-                                <Typography variant="body1">No events found</Typography>
+                                <Grid container spacing={2} sx={{ mt: 2 }}>
+                                    {filteredEvents.length > 0 ? (
+                                        filteredEvents.map(event => (
+                                            <Grid item xs={12} sm={6} md={4} key={event.eventid}>
+                                                <EventCard
+                                                    event={event}
+                                                    onEdit={() => handleEditOpen(event)}
+                                                    onDelete={() => handleDelete(event.eventid)}
+                                                    onRemind={() => handleRemind(event.eventid)}
+                                                />
+                                            </Grid>
+                                        ))
+                                    ) : (
+                                        <Typography variant="body1">No events found</Typography>
+                                    )}
+                                </Grid>
                             )}
-                        </Grid>
-                    )}
 
-                    {/* Fixed Position Buttons */}
-                    <Box sx={{ position: 'fixed', bottom: 24, right: 24, display: 'flex', gap: 2 }}>
-                        <Button
-                            onClick={handleOpen}
-                            variant="contained"
-                            color="primary"
-                        >
-                            Add New Event
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            color="primary"
-                        >
-                            View Calendar
-                        </Button>
-                    </Box>
+                            {/* Fixed Position Buttons */}
+                            <Box sx={{ position: 'fixed', bottom: 24, right: 24, display: 'flex', gap: 2 }}>
+                                <Button
+                                    onClick={handleOpen}
+                                    variant="contained"
+                                    color="primary"
+                                >
+                                    Add New Event
+                                </Button>
+                                <Button
+                                    onClick={() => { navigate("/user-calendar")}}
+                                    variant="outlined"
+                                    color="primary"
+                                >
+                                    View Calendar
+                                </Button>
+                            </Box>
 
-                    {/* Add Event Modal */}
-                    <Modal open={isOpen} onClose={handleClose}>
-                        <Box sx={{ ...modalStyle }}>
-                            <AddEventCard onClose={handleClose} />
+                            {/* Add Event Modal */}
+                            <Modal open={isOpen} onClose={handleClose}>
+                                <Box sx={{ ...modalStyle }}>
+                                    <AddEventCard onClose={handleClose} />
+                                </Box>
+                            </Modal>
+
+                            {/* Edit Event Modal */}
+                            <Modal open={editOpen} onClose={handleEditClose}>
+                                <Box sx={{ ...modalStyle }}>
+                                    <EditEventCard
+                                        eventid={selectedEvent.eventid}
+                                        eventname={selectedEvent.eventname}
+                                        description={selectedEvent.description}
+                                        eventdate={selectedEvent.eventdate}
+                                        onClose={handleEditClose}
+                                    />
+                                </Box>
+                            </Modal>
                         </Box>
-                    </Modal>
+                    </EventContext.Provider>
+                </Container>
+            )}
+        </>
 
-                    {/* Edit Event Modal */}
-                    <Modal open={editOpen} onClose={handleEditClose}>
-                        <Box sx={{ ...modalStyle }}>
-                            <EditEventCard
-                                eventid={selectedEvent.eventid}
-                                eventname={selectedEvent.eventname}
-                                description={selectedEvent.description}
-                                eventdate={selectedEvent.eventdate}
-                                onClose={handleEditClose}
-                            />
-                        </Box>
-                    </Modal>
-                </Box>
-            </EventContext.Provider>
-        </Container>
     );
 };
 
 export default Home;
 
-// Styling for modal positioning
+
 const modalStyle = {
     position: 'absolute',
     top: '50%',

@@ -14,10 +14,10 @@ const AddEventCard = () => {
     });
 
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: type === "checkbox" ? checked : value
+            [name]: value
         });
     };
 
@@ -69,16 +69,6 @@ const AddEventCard = () => {
                         InputLabelProps={{ shrink: true }}
                         margin="normal"
                         required
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                name="shouldremind"
-                                checked={formData.shouldremind}
-                                onChange={handleChange}
-                            />
-                        }
-                        label="Remind Me"
                     />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                         <Button variant="contained" color="primary" type="submit" fullWidth sx={{ mr: 1 }}>

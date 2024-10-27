@@ -29,8 +29,8 @@ const Verify = () => {
             setLoading(true);
             const res = await api.post("auth/verify", { email , verificationCode : code });
             alert(res.data.message);
-            setUser(res.data.user);
             navigate("/");
+            window.location.reload()
 
         }catch (error) {
             if (error.response && error.response.data && error.response.data.message) {

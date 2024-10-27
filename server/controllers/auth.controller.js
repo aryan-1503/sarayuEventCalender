@@ -10,7 +10,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import axios from "axios";
 
-
+// creating transporter for sending emails
 const transporter = nodemailer.createTransport({
     service: "Gmail",
     host: "smtp.gmail.com",
@@ -27,16 +27,27 @@ const transporter = nodemailer.createTransport({
 });
 
 export const health = (req,res) => {
+    /*
+        Function to check if auth router is up and running
+    */
     return res.status(200).json({ message : "Auth Router is working"})
 }
 export const register = async (req,res) => {
+    /*
+        Function to Register a user and save userData into Database
+        Request Body : Username, Email, Password
+        Returns : User
+    */
     const { username, email, password } = req.body;
 
     try{
+        // Checking is user already exists
         const userExists = await findUserByEmail(email);
         if(userExists){
             return res.status(400).json({ success: false, message : "User already exists" })
         }
+
+        // Generating hashed password
         const hashedPassword = await bcrypt.hash(password, 10);
         const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
@@ -60,6 +71,11 @@ export const register = async (req,res) => {
 
 
 export const verify = async (req, res) => {
+    /*
+        Function to Verify a user and save userData into Database
+        Request Body : Username, Email, Password
+        Returns : savedUser
+    */
     const { email, verificationCode } = req.body;
     try {
         // Fetch the user by email
@@ -102,6 +118,11 @@ export const verify = async (req, res) => {
 };
 
 export const login = async (req,res) => {
+    /*
+       Function to login a user
+       Request Body : Email, Password
+       Returns : User, TOKEN
+   */
     const { email, password } = req.body;
     try{
         const user = await findUserByEmail(email)
@@ -142,6 +163,10 @@ export const login = async (req,res) => {
 }
 
 export const me = async (req, res) => {
+    /*
+        Function to get the logged-in user
+        RETURNS : Current User
+    */
     res.status(200).json({ user : req.user });
 }
 

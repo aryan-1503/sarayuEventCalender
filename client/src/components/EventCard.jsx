@@ -1,7 +1,22 @@
-import React from 'react';
-import { Box, Button, Card, CardContent, Typography } from '@mui/material';
+import React, {useState} from 'react';
+import {Box, Button, Card, CardContent, CircularProgress, Typography} from '@mui/material';
+import {api} from "../api/base.js";
 
-const EventCard = ({ event, onEdit, onDelete, onRemind }) => {
+const EventCard = ({ event, onEdit, onDelete}) => {
+    const [loading, setLoading] = useState(false);
+    const onRemind = async (e) => {
+        e.preventDefault()
+        try{
+            setLoading(true)
+            const res = await api.post(`event/remind/${event.eventid}`, {});
+            alert(res.data.message);
+            window.location.reload();
+        }catch (e) {
+            console.log("ERROR in remind me : ", e)
+        }finally {
+            setLoading(false)
+        }
+    }
     return (
         <Card sx={{ p: 1, boxShadow: 3 }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
@@ -15,13 +30,15 @@ const EventCard = ({ event, onEdit, onDelete, onRemind }) => {
                     Event Date: {new Date(event.eventdate).toLocaleDateString()}
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
-                    Reminder: {event.shouldremind ? "Yes" : "No"}
+                    Reminder: {event.shouldremind ? "A reminder will be sent!" : "No reminder set."}
                 </Typography>
             </CardContent>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 1 }}>
-                <Button variant="outlined" color="secondary" onClick={onRemind}>
-                    Remind Me
-                </Button>
+                {!event.shouldremind && (
+                    <Button variant="outlined" color="secondary" onClick={onRemind}>
+                        {loading ? <CircularProgress sx={{ color: "secondary" }} size="30px" /> : "Remind me"}
+                    </Button>
+                )}
                 <Box sx={{ display: 'flex', gap: 1 }}>
                     <Button variant="contained" color="primary" onClick={onEdit}>
                         Edit

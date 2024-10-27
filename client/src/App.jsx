@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import {useEffect, useState} from 'react'
 import './App.css'
 import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 import AuthContext from "./context/AuthContext.jsx";
@@ -8,12 +8,25 @@ import Login from "./pages/Login.jsx";
 import Verify from "./pages/Verify.jsx";
 import Profile from "./components/Profile.jsx";
 import Home from "./pages/Home.jsx";
+import UserCalendar from "./pages/UserCalendar.jsx";
+import {api} from "./api/base.js";
 
 function App() {
   const [user, setUser] = useState(null);
   const [tempUser, setTempUser] = useState(null);
 
-
+  useEffect(() => {
+    // Fetching the current user
+    const fetchUserData = async () => {
+      try {
+        const res = await api.get("auth/me");
+        setUser(res.data.user);
+      } catch (error) {
+        console.log("Error fetching user data:", error);
+      }
+    };
+    fetchUserData();
+  }, []);
   return (
     <AuthContext.Provider value={{ user, setUser, tempUser, setTempUser }}>
       <Router >
@@ -24,6 +37,7 @@ function App() {
           {user ? (
               <Route element={<RootLayout />}>
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/user-calendar" element={<UserCalendar />} />
               </Route>
           ) : (
               <>

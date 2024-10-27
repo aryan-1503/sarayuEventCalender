@@ -64,6 +64,12 @@ export const updateEventById = async (eventid, eventData) => {
     return res.rows[0];
 }
 
+export const updateShouldRemind = async (eventid) => {
+    const res = await poolWithDb.query(
+        'UPDATE events SET shouldremind=$1 WHERE eventid=$2 RETURNING *;',
+        [true, eventid]
+    )
+}
 export const deleteEventById = async (eventid) => {
     const res = await poolWithDb.query(
         'DELETE FROM events WHERE eventid = $1',
